@@ -1,0 +1,81 @@
+name: Phase 1A remove committed Laravel log (one-off helper)
+
+# One-off helper. Runs only when this file is pushed to the helper branch.
+# It commits a single deletion to phase-1a-security-cleanup (PR #1).
+# No force-push, no history rewrite, main is never touched.
+
+on:
+  push:
+    branches:
+      - phase-1a-log-removal-helper
+    paths:
+      - .github/workflows/phase-1a-remove-laravel-log.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-1a-remove-laravel-log
+  cancel-in-progress: false
+
+jobs:
+  remove-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: phase-1a-security-cleanup
+          fetch-depth: 0
+
+      - name: Remove only the Laravel log and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOG="Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/storage/logs/laravel.log"
+          KEEP="Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/storage/logs/.gitignore"
+          EXPECTED_HEAD="3f88f2463ef1f162662684efeb43c8ea4d5de7c5"
+
+          echo "Branch head: $(git rev-parse HEAD)"
+          if [ "$(git rev-parse HEAD)" != "$EXPECTED_HEAD" ]; then
+            echo "::error::phase-1a-security-cleanup moved since review; aborting without changes."
+            exit 1
+          fi
+
+          git ls-files --error-unmatch -- "$LOG"
+          git ls-files --error-unmatch -- "$KEEP"
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::Working tree not clean; aborting."
+            exit 1
+          fi
+
+          git rm --quiet -- "$LOG"
+
+          echo "Staged changes:"
+          git diff --cached --name-status
+          staged_count="$(git diff --cached --name-only | wc -l)"
+          staged_status="$(git diff --cached --name-status | cut -f1)"
+          staged_path="$(git diff --cached --name-only)"
+          if [ "$staged_count" != "1" ] || [ "$staged_status" != "D" ] || [ "$staged_path" != "$LOG" ]; then
+            echo "::error::Unexpected staged changes; aborting without commit."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898583+github-actions[bot]@users.noreply.github.com"
+          git commit --quiet -m "Phase 1A: remove committed Laravel log"
+
+          # Post-commit checks
+          if git ls-files --error-unmatch -- "$LOG" >/dev/null 2>&1; then
+            echo "::error::Log still tracked after commit."
+            exit 1
+          fi
+          git ls-files --error-unmatch -- "$KEEP"
+          echo "Commit diff vs previous head:"
+          git diff --name-status "$EXPECTED_HEAD" HEAD
+          echo "Tracked files in storage/logs:"
+          git ls-files -- "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/storage/logs"
+
+          # Normal fast-forward push; fails if the branch moved. No force.
+          git push origin HEAD:refs/heads/phase-1a-security-cleanup
+          echo "New commit: $(git rev-parse HEAD)"
