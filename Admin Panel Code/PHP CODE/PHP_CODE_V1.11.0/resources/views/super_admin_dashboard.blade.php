@@ -13,6 +13,10 @@
             </h3>
         </div>
 
+        @if (Auth::check() && Auth::user()->hasRole('Super Admin') && Auth::user()->can('schools-list'))
+            @include('eduverse3d.main_admin')
+        @endif
+
         {{-- Super Admin Dashboard --}}
         <div class="row">
             {{-- Total Schools --}}
