@@ -55,6 +55,7 @@
     @include('layouts.home_page.footer_js')
     @yield('js')
     @yield('script')
+    @include('layouts.home_page.hero3d')
 </body>
 
 </html>
