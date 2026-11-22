@@ -133,6 +133,28 @@ document.addEventListener("DOMContentLoaded", function () {
   counters.forEach(counter => {
       observer.observe(counter);
   });
+
+  // Scroll animations for sections
+  const scrollElements = document.querySelectorAll('.scroll-animate');
+  if (scrollElements.length) {
+      const scrollObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  const element = entry.target;
+                  const delay = element.dataset.scrollDelay || 0;
+                  const animationType = element.dataset.scrollAnim || 'fade-up';
+
+                  setTimeout(() => {
+                      element.classList.add('animated', `scroll-${animationType}`);
+                  }, parseInt(delay));
+
+                  observer.unobserve(element);
+              }
+          });
+      }, { threshold: 0.15 });
+
+      scrollElements.forEach(el => scrollObserver.observe(el));
+  }
 });
 var buttonClicked = false;
 

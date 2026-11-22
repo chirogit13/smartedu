@@ -2399,3 +2399,7 @@
 [stacktrace]
 #0 {main}
 "} 
+[2026-11-22 21:43:18] local.ERROR: Maximum execution time of 30 seconds exceeded {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Maximum execution time of 30 seconds exceeded at C:/Users/HP/Downloads/eSchool-Saas-V1.11.0/Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/vendor/laravel/framework/src/Illuminate/Filesystem/Filesystem.php:204)
+[stacktrace]
+#0 {main}
+"} 

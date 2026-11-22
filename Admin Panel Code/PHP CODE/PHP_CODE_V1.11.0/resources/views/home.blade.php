@@ -466,18 +466,18 @@
             @endif
         @endforeach
 
-        <section class="whyBest container commonMT" id="about-us">
+        <section class="whyBest container commonMT scroll-animate" id="about-us" data-scroll-delay="100" data-scroll-anim="fade-up">
             <div class="row">
                 <div class="col-lg-6">
-                    <div class="whyBestTextWrapper">
+                    <div class="whyBestTextWrapper scroll-animate" data-scroll-delay="200" data-scroll-anim="fade-up">
                         <p>{{ $settings['about_us_title'] ?? null }}</p>
                         <p>{{ $settings['about_us_heading'] ?? null }}</p>
                     </div>
-                    <p class="whyBestPara">
+                    <p class="whyBestPara scroll-animate" data-scroll-delay="250" data-scroll-anim="fade-up">
                         {{ $settings['about_us_description'] ?? null }}
                     </p>
 
-                    <div class="listWrapper">
+                    <div class="listWrapper scroll-animate" data-scroll-delay="300" data-scroll-anim="fade-up">
                         @foreach ($about_us_lists as $point)
                             <span>
                                 <i class="fa-regular fa-circle-check"></i>
@@ -487,7 +487,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-6">
+                <div class="col-lg-6 scroll-animate" data-scroll-delay="150" data-scroll-anim="fade-left">
                     <img src="{{ $settings['about_us_image'] ?? asset('assets/landing_page_images/whyBestImg.png') }}"
                         alt="">
                 </div>
@@ -495,7 +495,7 @@
         </section>
         <!-- whyBest ends here  -->
 
-        <section class="pricing" id="pricing">
+        <section class="pricing scroll-animate" id="pricing" data-scroll-delay="100" data-scroll-anim="fade-up">
             <div class="container commonMT">
                 <div class="row">
                     <div class="col-12">
@@ -699,7 +699,7 @@
         @endif
 
         @if (count($faqs))
-            <section class="faqs commonMT" id="faq">
+            <section class="faqs commonMT scroll-animate" id="faq" data-scroll-delay="100" data-scroll-anim="fade-up">
                 <div class="container">
                     <div class="row">
                         <div class="col-12">
@@ -712,7 +712,7 @@
                         <div class="col-12">
                             <div class="accordion" id="accordionExample">
                                 @foreach ($faqs as $faq)
-                                    <div class="accordion-item">
+                                    <div class="accordion-item scroll-animate" data-scroll-delay="150" data-scroll-anim="fade-up">
                                         <h2 class="accordion-header" id="headingOne">
                                             <button class="accordion-button collapsed" type="button"
                                                 data-bs-toggle="collapse"
@@ -741,19 +741,19 @@
         @endif
         <!-- faqs ends here  -->
 
-        <section class="getInTouch commonMT" id="contact-us">
+        <section class="getInTouch commonMT scroll-animate" id="contact-us" data-scroll-delay="100" data-scroll-anim="fade-up">
             <div class="container">
                 <div class="row">
                     <div class="col-12">
                         <div class="sectionTitle">
-                            <span class="greenText">{{ __('lets_get_in_touch') }}</span>
-                            <span>{{ __('have_a_question_or_just_want_to_say_hi_Wed_love_to_hear_from_you') }}
+                            <span class="greenText scroll-animate" data-scroll-delay="150" data-scroll-anim="fade-up">{{ __('lets_get_in_touch') }}</span>
+                            <span class="scroll-animate" data-scroll-delay="200" data-scroll-anim="fade-up">{{ __('have_a_question_or_just_want_to_say_hi_Wed_love_to_hear_from_you') }}
                             </span>
 
                         </div>
                         <div class="col-12">
                             <div class="row wrapper">
-                                <div class="col-lg-6">
+                                <div class="col-lg-6 scroll-animate" data-scroll-delay="150" data-scroll-anim="fade-left">
                                     <form action="{{ url('contact') }}" method="post" role="form"
                                         class="php-email-form mb-5 create-form-with-captcha">
                                         @csrf

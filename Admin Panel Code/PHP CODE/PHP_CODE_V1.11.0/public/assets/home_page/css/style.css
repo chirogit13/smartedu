@@ -1795,6 +1795,59 @@ footer .copyright {
         padding: 0px;
     }
 
+
+    /* Scroll Animations */
+    .scroll-animate {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .scroll-animate.animated {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Fade up animation */
+    .scroll-fade-up {
+        transition-delay: 0ms;
+    }
+
+    /* Fade down animation */
+    .scroll-fade-down {
+        transition-delay: 0ms;
+    }
+
+    /* Fade left animation */
+    .scroll-fade-left {
+        transform: translateX(-30px);
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .scroll-animate.scroll-fade-left.animated {
+        transform: translateX(0);
+    }
+
+    /* Fade right animation */
+    .scroll-fade-right {
+        transform: translateX(30px);
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .scroll-animate.scroll-fade-right.animated {
+        transform: translateX(0);
+    }
+
+    /* Zoom in animation */
+    .scroll-zoom-in {
+        transform: scale(0.9);
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .scroll-animate.scroll-zoom-in.animated {
+        transform: scale(1);
+    }
+
     .formModal .modal-title {
         font-size: 22px !important;
     }
