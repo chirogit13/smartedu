@@ -1,0 +1,95 @@
+name: Phase 2 - merge Phase 1A security fixes into phase-2-3d-platform (one-off helper)
+
+# One-off helper. Runs only when this file is pushed to the helper branch.
+# Creates a normal merge commit of phase-1a-security-cleanup into
+# phase-2-3d-platform. No force-push, no history rewrite, main is never touched.
+
+on:
+  push:
+    branches:
+      - phase-1a-log-removal-helper
+    paths:
+      - .github/workflows/phase-2-merge-phase-1a.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-2-merge-phase-1a
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out phase-2-3d-platform
+        uses: actions/checkout@v4
+        with:
+          ref: phase-2-3d-platform
+          fetch-depth: 0
+
+      - name: Merge phase-1a-security-cleanup and push
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED_HEAD="129ac4d41fcc3d2552b1ff2fd44410580786341d"
+          EXPECTED_1A="1fcc051792a9a3c936ee2f3655ec7de66b9d9c72"
+
+          git fetch origin phase-1a-security-cleanup
+          echo "phase-2-3d-platform head: $(git rev-parse HEAD)"
+          echo "phase-1a head: $(git rev-parse origin/phase-1a-security-cleanup)"
+          [ "$(git rev-parse HEAD)" = "$EXPECTED_HEAD" ] || { echo "::error::phase-2-3d-platform moved; aborting."; exit 1; }
+          [ "$(git rev-parse origin/phase-1a-security-cleanup)" = "$EXPECTED_1A" ] || { echo "::error::phase-1a moved; aborting."; exit 1; }
+
+          echo "Phase 1A commits being brought in:"
+          git log --oneline HEAD..origin/phase-1a-security-cleanup
+          if git diff --name-only HEAD...origin/phase-1a-security-cleanup | grep -q '^\.github/'; then
+            echo "::error::Phase 1A side touches .github; aborting."; exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898583+github-actions[bot]@users.noreply.github.com"
+          if ! git merge --no-ff --no-edit -m "Phase 2: merge Phase 1A security fixes (phase-1a-security-cleanup)" origin/phase-1a-security-cleanup; then
+            echo "::error::Merge conflict; aborting without pushing."
+            git status --short
+            git merge --abort || true
+            exit 1
+          fi
+
+          echo "Files changed by the merge (vs previous phase-2 head):"
+          git diff --name-status "$EXPECTED_HEAD" HEAD
+
+          python3 - <<'PY'
+          import subprocess, sys
+          allowed = {
+            ".gitignore",
+            "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/.gitignore",
+            "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/storage/logs/.gitignore",
+            "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/storage/logs/laravel.log",
+            "App Code/e-school-saas/e-school-saas/lib/ui/screens/auth/parentLoginScreen.dart",
+            "App Code/e-school-saas/e-school-saas/lib/ui/screens/auth/studentLoginScreen.dart",
+            "App Code/e-school-saas/e-school-saas/lib/utils/constants.dart",
+            "App Code/eschool-saas-staff/eschool-saas-staff/lib/ui/screens/login/loginScreen.dart",
+            "App Code/eschool-saas-staff/eschool-saas-staff/lib/utils/constants.dart",
+          }
+          out = subprocess.run(["git","diff","--name-only","-z","129ac4d41fcc3d2552b1ff2fd44410580786341d","HEAD"],capture_output=True,check=True).stdout.decode()
+          changed = {p for p in out.split("\0") if p}
+          extra = changed - allowed
+          if extra:
+              print("::error::Unexpected files changed by merge:", sorted(extra)); sys.exit(1)
+          print(f"OK: {len(changed)} files changed, all from Phase 1A")
+          PY
+
+          # Post-merge checks
+          if git ls-files --error-unmatch -- "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/storage/logs/laravel.log" >/dev/null 2>&1; then
+            echo "::error::Laravel log still tracked after merge"; exit 1
+          fi
+          for p in "App Code/e-school-saas/e-school-saas/lib" "App Code/eschool-saas-staff/eschool-saas-staff/lib"; do
+            if git grep -nE 'showDefaultCredentials|defaultStudentGRNumber|defaultStudentPassword|defaultParentEmail|defaultParentPassword|defaultSchoolCode|defaultEmail|defaultPassword' -- "$p"; then
+              echo "::error::Removed credential constants still referenced in $p"; exit 1
+            fi
+          done
+          git ls-files -- "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/public/assets/eduverse3d" | head -20
+
+          git push origin HEAD:refs/heads/phase-2-3d-platform
+          echo "Merge commit: $(git rev-parse HEAD)"
