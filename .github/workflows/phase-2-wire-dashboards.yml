@@ -1,0 +1,87 @@
+name: Phase 2 - wire EduVerse 3D into dashboards
+
+# One-off helper for branch phase-2-3d-platform. Safe to delete after Phase 2.
+# Re-runs whenever this file changes; every edit is idempotent and anchor-checked.
+on:
+  push:
+    branches: [phase-2-3d-platform]
+    paths: ['.github/workflows/phase-2-wire-dashboards.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase-2-wire-dashboards
+  cancel-in-progress: false
+
+env:
+  APP_DIR: "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0"
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-2-3d-platform
+          fetch-depth: 0
+
+      - name: Insert @include lines (idempotent, unique-anchor check)
+        run: |
+          python3 - <<'PY'
+          import os, sys, pathlib
+          views = pathlib.Path(os.environ["APP_DIR"]) / "resources" / "views"
+          # (dashboard view, unique anchor line, line to insert before it, partial that must exist)
+          EDITS = [
+              ("super_admin_dashboard.blade.php",
+               b"        {{-- Super Admin Dashboard --}}",
+               b"        @include('eduverse3d.main_admin')\n\n",
+               "eduverse3d/main_admin.blade.php"),
+          ]
+          for name, anchor, insert, partial in EDITS:
+              if not (views / partial).is_file():
+                  sys.exit(f"{name}: partial {partial} is missing")
+              path = views / name
+              data = path.read_bytes()
+              if insert.strip() in data:
+                  print(f"{name}: already wired")
+                  continue
+              count = data.count(anchor)
+              if count != 1:
+                  sys.exit(f"{name}: anchor found {count} times, expected exactly 1")
+              path.write_bytes(data.replace(anchor, insert + anchor, 1))
+              print(f"{name}: wired {insert.strip().decode()}")
+          PY
+          git --no-pager diff --stat
+
+      - name: Compile every Blade view with Laravel 10 and php -l the output
+        id: verify
+        continue-on-error: true
+        run: |
+          set -e
+          php --version | head -1
+          work="$RUNNER_TEMP/blade"
+          mkdir -p "$work" && cd "$work"
+          composer init --no-interaction --name=ev3d/check >/dev/null
+          composer require --no-interaction --no-progress illuminate/view:^10.0 illuminate/filesystem:^10.0 >/dev/null
+          cat > check.php <<'PHPX'
+          <?php
+          require __DIR__ . '/vendor/autoload.php';
+          use Illuminate\Filesystem\Filesystem;
+          use Illuminate\View\Compilers\BladeCompiler;
+          $root = rtrim($argv[1], '/');
+          $must = array_slice($argv, 2);
+          $compiler = new BladeCompiler(new Filesystem, sys_get_temp_dir());
+          $bad = 0; $ok = 0; $skipped = 0;
+          $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
+          foreach ($it as $file) {
+              $path = (string) $file;
+              if (!str_ends_with($path, '.blade.php')) continue;
+              $rel = substr($path, strlen($root) + 1);
+              $critical = in_array($rel, $must, true) || str_starts_with($rel, 'eduverse3d/');
+              try {
+                  $php = $compiler->compileString(file_get_contents($path));
+              } catch (Throwable $e) {
+                  $skipped++;
+                  echo ($critical ? 'COMPILE FAIL ' : 'skip (needs app) ') . "$rel: " . $e->getMessage() . "
