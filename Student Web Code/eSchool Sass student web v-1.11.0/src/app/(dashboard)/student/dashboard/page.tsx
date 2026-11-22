@@ -13,6 +13,7 @@ import {
   useGetSliders,
 } from '@/lib/api/student/queryHooks';
 import UpgradePlan from '@/components/ui/pages/dashboard/UpgradePlan';
+import StudentLearningWorld from '@/components/eduverse3d/StudentLearningWorld';
 
 // Main Dashboard Component
 export default function StudentDashboard() {
@@ -79,6 +80,11 @@ export default function StudentDashboard() {
     <Container collapsed={collapsed}>
       {/* Breadcrumb */}
       <Breadcrumb title={translate('dashboard')} items={breadcrumbItems} />
+
+      {/* Smart EduVerse 3D learning world (lazy-loaded, with 2D fallback) */}
+      <div className="mb-4 md:mb-6">
+        <StudentLearningWorld />
+      </div>
 
       {!hasAnyFeature ? (
         <UpgradePlan />
