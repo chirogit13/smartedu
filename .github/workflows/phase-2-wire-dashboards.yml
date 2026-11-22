@@ -1,7 +1,8 @@
 name: Phase 2 - wire EduVerse 3D into dashboards
 
-# One-off helper for branch phase-2-3d-platform. Safe to delete after Phase 2.
-# Re-runs whenever this file changes; every edit is idempotent and anchor-checked.
+# One-off helper for branch phase-2-3d-platform. Safe to remove after Phase 2.
+# Mounts the existing Main Admin stage, verifies the views and scene loader,
+# then commits only the dashboard integration to this branch.
 on:
   push:
     branches: [phase-2-3d-platform]
@@ -27,61 +28,109 @@ jobs:
           ref: phase-2-3d-platform
           fetch-depth: 0
 
-      - name: Insert @include lines (idempotent, unique-anchor check)
+      - name: Mount the guarded Main Admin stage
         run: |
           python3 - <<'PY'
-          import os, sys, pathlib
-          views = pathlib.Path(os.environ["APP_DIR"]) / "resources" / "views"
-          # (dashboard view, unique anchor line, line to insert before it, partial that must exist)
-          EDITS = [
-              ("super_admin_dashboard.blade.php",
-               b"        {{-- Super Admin Dashboard --}}",
-               b"        @include('eduverse3d.main_admin')\n\n",
-               "eduverse3d/main_admin.blade.php"),
+          import os
+          import pathlib
+          import sys
+
+          root = pathlib.Path(os.environ["APP_DIR"])
+          views = root / "resources" / "views"
+          required = [
+              views / "eduverse3d" / "main_admin.blade.php",
+              views / "eduverse3d" / "stage.blade.php",
+              root / "public" / "assets" / "eduverse3d" / "eduverse3d.js",
+              root / "public" / "assets" / "eduverse3d" / "eduverse3d.css",
+              root / "public" / "assets" / "eduverse3d" / "vendor" / "three.module.min.js",
           ]
-          for name, anchor, insert, partial in EDITS:
-              if not (views / partial).is_file():
-                  sys.exit(f"{name}: partial {partial} is missing")
-              path = views / name
-              data = path.read_bytes()
-              if insert.strip() in data:
-                  print(f"{name}: already wired")
-                  continue
+          missing = [str(path) for path in required if not path.is_file()]
+          if missing:
+              sys.exit("Required EduVerse 3D files are missing: " + ", ".join(missing))
+
+          dashboard = views / "super_admin_dashboard.blade.php"
+          data = dashboard.read_bytes()
+          anchor = b"        {{-- Super Admin Dashboard --}}"
+          block = (
+              b"        @if (Auth::check() && Auth::user()->hasRole('Super Admin') && Auth::user()->can('schools-list'))\n"
+              b"            @include('eduverse3d.main_admin')\n"
+              b"        @endif\n\n"
+          )
+          if block in data:
+              print("Guarded Main Admin stage is already mounted.")
+          elif b"@include('eduverse3d.main_admin')" in data:
+              sys.exit("An unguarded Main Admin stage include already exists; refusing to duplicate it.")
+          else:
               count = data.count(anchor)
               if count != 1:
-                  sys.exit(f"{name}: anchor found {count} times, expected exactly 1")
-              path.write_bytes(data.replace(anchor, insert + anchor, 1))
-              print(f"{name}: wired {insert.strip().decode()}")
+                  sys.exit(f"Dashboard anchor found {count} times; expected exactly one.")
+              dashboard.write_bytes(data.replace(anchor, block + anchor, 1))
+              print("Mounted the existing stage for Super Admins with schools-list permission.")
           PY
-          git --no-pager diff --stat
 
-      - name: Compile every Blade view with Laravel 10 and php -l the output
-        id: verify
-        continue-on-error: true
+      - name: Verify Blade and 3D loading
+        env:
+          COMPOSER_ALLOW_SUPERUSER: '1'
         run: |
-          set -e
-          php --version | head -1
-          work="$RUNNER_TEMP/blade"
-          mkdir -p "$work" && cd "$work"
-          composer init --no-interaction --name=ev3d/check >/dev/null
+          set -euo pipefail
+          cd "$APP_DIR"
+          test -s public/assets/eduverse3d/eduverse3d.js
+          test -s public/assets/eduverse3d/eduverse3d.css
+          test -s public/assets/eduverse3d/vendor/three.module.min.js
+          node --check public/assets/eduverse3d/eduverse3d.js
+          git diff --check
+
+          work="$RUNNER_TEMP/ev3d-blade-check"
+          mkdir -p "$work"
+          cd "$work"
+          composer init --no-interaction --name=ev3d/blade-check >/dev/null
           composer require --no-interaction --no-progress illuminate/view:^10.0 illuminate/filesystem:^10.0 >/dev/null
-          cat > check.php <<'PHPX'
+          cat > check.php <<'PHP'
           <?php
           require __DIR__ . '/vendor/autoload.php';
           use Illuminate\Filesystem\Filesystem;
           use Illuminate\View\Compilers\BladeCompiler;
+
           $root = rtrim($argv[1], '/');
-          $must = array_slice($argv, 2);
-          $compiler = new BladeCompiler(new Filesystem, sys_get_temp_dir());
-          $bad = 0; $ok = 0; $skipped = 0;
-          $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
-          foreach ($it as $file) {
-              $path = (string) $file;
-              if (!str_ends_with($path, '.blade.php')) continue;
-              $rel = substr($path, strlen($root) + 1);
-              $critical = in_array($rel, $must, true) || str_starts_with($rel, 'eduverse3d/');
-              try {
-                  $php = $compiler->compileString(file_get_contents($path));
-              } catch (Throwable $e) {
-                  $skipped++;
-                  echo ($critical ? 'COMPILE FAIL ' : 'skip (needs app) ') . "$rel: " . $e->getMessage() . "
+          $targets = array_slice($argv, 2);
+          $compiler = new BladeCompiler(new Filesystem(), sys_get_temp_dir());
+          foreach ($targets as $relative) {
+              $sourcePath = $root . '/' . $relative;
+              $source = file_get_contents($sourcePath);
+              if ($source === false) {
+                  fwrite(STDERR, "Could not read: {$relative}\n");
+                  exit(1);
+              }
+              $compiled = $compiler->compileString($source);
+              $temporary = tempnam(sys_get_temp_dir(), 'ev3d-blade-');
+              if ($temporary === false) {
+                  fwrite(STDERR, "Could not create a temporary Blade output file.\n");
+                  exit(1);
+              }
+              file_put_contents($temporary, $compiled);
+              exec(escapeshellarg(PHP_BINARY) . ' -l ' . escapeshellarg($temporary), $output, $status);
+              unlink($temporary);
+              if ($status !== 0) {
+                  fwrite(STDERR, "Blade/PHP syntax failed: {$relative}\n" . implode("\n", $output) . "\n");
+                  exit($status);
+              }
+              echo "Blade/PHP syntax OK: {$relative}\n";
+          }
+          PHP
+          php check.php "$GITHUB_WORKSPACE/$APP_DIR/resources/views" \
+            super_admin_dashboard.blade.php \
+            eduverse3d/main_admin.blade.php \
+            eduverse3d/stage.blade.php
+
+      - name: Commit and push dashboard integration
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- "$APP_DIR/resources/views/super_admin_dashboard.blade.php"; then
+            echo "No dashboard integration changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$APP_DIR/resources/views/super_admin_dashboard.blade.php"
+          git commit -m "Connect guarded EduVerse 3D admin dashboard"
+          git push origin phase-2-3d-platform
