@@ -5,13 +5,24 @@ import 'package:flutter/material.dart';
 
 ///[Do not add / at the end of the url]`
 
-const String baseUrl = "https://eschool-saas.wrteam.me";
+// Override at build time with:
+//   flutter build apk --dart-define=BASE_URL=https://your-domain.example
+// When no value is supplied the previous built-in address is used, so
+// existing builds behave exactly as before.
+const String baseUrl = String.fromEnvironment(
+  'BASE_URL',
+  defaultValue: "https://eschool-saas.wrteam.me",
+);
 
 const String databaseUrl = "$baseUrl/api/";
 
 // Reverb WebSocket URL (Pusher protocol)
-const reverbUrl =
-    "ws://stage-eschool-saas.wrteam.net:9090/app/e2mhe9gu4tb2x2vkncxa";
+// Override at build time with --dart-define=REVERB_URL=wss://host/app/<key>
+const reverbUrl = String.fromEnvironment(
+  'REVERB_URL',
+  defaultValue:
+      "ws://stage-eschool-saas.wrteam.net:9090/app/e2mhe9gu4tb2x2vkncxa",
+);
 
 // Reverb reconnect delay
 const reverbReconnectDelay = Duration(seconds: 3);
@@ -25,13 +36,6 @@ Duration tileCollapsedDuration = const Duration(milliseconds: 500);
 int nextSearchRequestQueryTimeInMilliSeconds = 700;
 int searchRequestPerodicMilliSeconds = 100;
 double topPaddingOfErrorAndLoadingContainer = 150;
-
-const bool showDefaultCredentials = false;
-
-// teacher creads
-String defaultSchoolCode = "SCH202412";
-String defaultEmail = "teacher@gmail.com";
-String defaultPassword = "0111111111";
 
 List<String> months = [
   januaryKey,
