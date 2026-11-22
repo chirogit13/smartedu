@@ -1,0 +1,85 @@
+    E-SCHOOL SAAS STAFF v.1.11.0 CHANGELOG
+
+═══════════════════════════════════════════════════════════════════════════════
+FILES CHANGED:
+═══════════════════════════════════════════════════════════════════════════════
+
+M       android/app/src/main/AndroidManifest.xml
+A       assets/images/qr_attendance.svg
+M       assets/languages/en.json
+M       ios/Runner/Info.plist
+M       lib/app/app.dart
+M       lib/app/appTranslation.dart
+M       lib/app/routes.dart
+M       lib/cubits/appLocalizationCubit.dart
+M       lib/cubits/authentication/authCubit.dart
+A       lib/cubits/leave/studentLeavesCubit.dart
+A       lib/cubits/leave/updateStudentLeaveStatusCubit.dart
+A       lib/cubits/qrAttendance/qrAttendanceConfigCubit.dart
+A       lib/cubits/qrAttendance/qrAttendanceHistoryCubit.dart
+A       lib/cubits/qrAttendance/qrPunchCubit.dart
+A       lib/cubits/qrAttendance/qrPunchLogCubit.dart
+M       lib/cubits/teacherAcademics/attendence/submitAttendanceCubit.dart
+M       lib/cubits/transport/tripsCubit.dart
+M       lib/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart
+M       lib/data/models/appLanguage.dart
+A       lib/data/models/qrAttendance/qrAttendanceConfig.dart
+A       lib/data/models/qrAttendance/qrAttendanceEnums.dart
+A       lib/data/models/qrAttendance/qrAttendanceHistory.dart
+A       lib/data/models/qrAttendance/qrAttendanceToday.dart
+A       lib/data/models/qrAttendance/qrAttendanceUtils.dart
+A       lib/data/models/qrAttendance/qrPunchLog.dart
+A       lib/data/models/qrAttendance/qrPunchResult.dart
+M       lib/data/models/studentAttendance.dart
+A       lib/data/models/studentLeave.dart
+A       lib/data/repositories/qrAttendanceRepository.dart
+M       lib/data/repositories/settingsRepository.dart
+A       lib/data/repositories/studentLeaveRepository.dart
+M       lib/data/repositories/transportRepository.dart
+M       lib/ui/screens/home/widgets/academicsContainer/widgets/staffAcademicsContainer.dart
+M       lib/ui/screens/home/widgets/academicsContainer/widgets/teacherAcademicsContainer.dart
+M       lib/ui/screens/home/widgets/homeContainer/homeContainer.dart
+M       lib/ui/screens/home/widgets/teacherHomeContainer/teacherHomeContainer.dart
+A       lib/ui/screens/leaves/studentLeaveDetailsScreen.dart
+A       lib/ui/screens/leaves/studentLeaveScreen.dart
+A       lib/ui/screens/qrAttendance/qrAttendanceHistoryScreen.dart
+A       lib/ui/screens/qrAttendance/qrAttendanceScreen.dart
+A       lib/ui/screens/qrAttendance/qrScannerScreen.dart
+A       lib/ui/screens/qrAttendance/widgets/qrAttendanceDayTypePill.dart
+A       lib/ui/screens/qrAttendance/widgets/qrAttendanceHistoryRow.dart
+A       lib/ui/screens/qrAttendance/widgets/qrAttendanceMessageContainer.dart
+A       lib/ui/screens/qrAttendance/widgets/qrAttendanceSummaryCard.dart
+A       lib/ui/screens/qrAttendance/widgets/qrPunchLogBottomSheet.dart
+A       lib/ui/screens/qrAttendance/widgets/qrPunchResultBottomSheet.dart
+A       lib/ui/screens/qrAttendance/widgets/qrScanActionButton.dart
+A       lib/ui/screens/qrAttendance/widgets/qrScannerOverlay.dart
+A       lib/ui/screens/qrAttendance/widgets/qrSessionRow.dart
+A       lib/ui/screens/qrAttendance/widgets/qrSessionsCard.dart
+A       lib/ui/screens/qrAttendance/widgets/qrTodayStatusCard.dart
+M       lib/ui/screens/studentsAttendanceScreen.dart
+M       lib/ui/screens/teacherAcademics/teacherAddAttendanceScreeen.dart
+M       lib/ui/screens/tripDetailsScreen/tripDetailsScreen.dart
+A       lib/ui/screens/tripDetailsScreen/widgets/locationRequiredDialog.dart
+M       lib/ui/screens/tripDetailsScreen/widgets/startTripBottomSheet.dart
+M       lib/ui/styles/colors.dart
+M       lib/ui/widgets/customAttendanceToggleButton.dart
+A       lib/ui/widgets/rejectionReasonBottomsheet.dart
+M       lib/ui/widgets/studentAttendanceContainer.dart
+M       lib/ui/widgets/studentAttendenceItemContainer.dart
+A       lib/ui/widgets/studentLeaveRequestCard.dart
+A       lib/ui/widgets/studentLeaveStatusChip.dart
+M       lib/utils/api.dart
+M       lib/utils/appLanguages.dart
+M       lib/utils/constants.dart
+M       lib/utils/labelKeys.dart
+A       lib/utils/locationService.dart
+M       lib/utils/notificationUtility.dart
+M       lib/utils/systemModulesAndPermissions.dart
+A       lib/utils/tripLocationTracker.dart
+M       lib/utils/utils.dart
+M       pubspec.yaml
+
+═══════════════════════════════════════════════════════════════════════════════
+LEGEND:  A = Added    M = Modified
+TOTAL:   79 files changed (39 added, 40 modified)
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,153 @@
+═══════════════════════════════════════════════════════════════════════════════
+                          E-SCHOOL SAAS v.1.11.0 CHANGELOG
+═══════════════════════════════════════════════════════════════════════════════
+
+
+FILES CHANGED:
+═══════════════════════════════════════════════════════════════════════════════
+
+M       assets/languages/en.json
+M       ios/Runner/Info.plist
+M       lib/app/app.dart
+M       lib/app/appTranslation.dart
+M       lib/app/routes.dart
+M       lib/cubits/appLocalizationCubit.dart
+M       lib/cubits/appSettingsCubit.dart
+A       lib/cubits/applyStudentLeaveCubit.dart
+M       lib/cubits/assignmentsCubit.dart
+M       lib/cubits/attendanceCubit.dart
+A       lib/cubits/cancelStudentLeaveCubit.dart
+A       lib/cubits/childFeeCubit.dart
+M       lib/cubits/childFeeDetailsCubit.dart
+M       lib/cubits/classElectiveSubjectsCubit.dart
+A       lib/cubits/downloadFeeTransactionReceiptCubit.dart
+M       lib/cubits/downloadStudentIdCardCubit.dart
+M       lib/cubits/examTimeTableCubit.dart
+A       lib/cubits/feeTransactionsCubit.dart
+A       lib/cubits/leaveSettingsCubit.dart
+A       lib/cubits/liveTrackingLinkCubit.dart
+A       lib/cubits/manualFeePaymentCubit.dart
+M       lib/cubits/noticeBoardCubit.dart
+M       lib/cubits/notificationSettingsCubit.dart
+M       lib/cubits/paymentTransactionsCubit.dart
+M       lib/cubits/resetPasswordRequestCubit.dart
+M       lib/cubits/selectElectiveSubjectsCubit.dart
+A       lib/cubits/studentLeavesCubit.dart
+M       lib/cubits/subjectWiseReportCubit.dart
+M       lib/cubits/submitOnlineExamAnswersCubit.dart
+M       lib/cubits/topicStudyMaterialCubit.dart
+M       lib/cubits/transport/enrollFormCubit.dart
+M       lib/cubits/undoAssignmentSubmissionCubit.dart
+M       lib/cubits/uploadAssignmentCubit.dart
+M       lib/data/models/appLanguage.dart
+M       lib/data/models/childFeeDetails.dart
+M       lib/data/models/compulsoryPaidFee.dart
+M       lib/data/models/diaryCategory.dart
+M       lib/data/models/feeDiscount.dart
+A       lib/data/models/feeTransaction.dart
+M       lib/data/models/installment.dart
+A       lib/data/models/leaveSettings.dart
+M       lib/data/models/lesson.dart
+A       lib/data/models/liveTrackingLink.dart
+A       lib/data/models/manualFeePaymentArguments.dart
+M       lib/data/models/optionalPaidFee.dart
+M       lib/data/models/paymentGateway.dart
+A       lib/data/models/publicHoliday.dart
+M       lib/data/models/question.dart
+M       lib/data/models/school.dart
+M       lib/data/models/schoolConfiguration.dart
+M       lib/data/models/studentDetailsResponse.dart
+M       lib/data/models/studentDiaryResponse.dart
+A       lib/data/models/studentLeave.dart
+M       lib/data/models/studyMaterial.dart
+M       lib/data/models/subjectTeacher.dart
+M       lib/data/models/subjectWiseReport.dart
+M       lib/data/models/topic.dart
+M       lib/data/models/transportDashboard.dart
+M       lib/data/repositories/assignmentRepository.dart
+M       lib/data/repositories/chatRepository.dart
+M       lib/data/repositories/feeRepository.dart
+M       lib/data/repositories/liveRouteRepository.dart
+M       lib/data/repositories/paymentRepository.dart
+M       lib/data/repositories/pendingExamSubmissionRepository.dart
+M       lib/data/repositories/settingsRepository.dart
+A       lib/data/repositories/studentLeaveRepository.dart
+M       lib/ui/screens/auth/widgets/requestResetPasswordBottomsheet.dart
+M       lib/ui/screens/childDetailMenuScreen.dart
+M       lib/ui/screens/childDetailsScreen.dart
+M       lib/ui/screens/childFeeDetails/childFeeDetailsScreen.dart
+A       lib/ui/screens/childFeeDetails/feeTransactionsScreen.dart
+A       lib/ui/screens/childFeeDetails/manualFeePaymentScreen.dart
+A       lib/ui/screens/childFeeDetails/widgets/feeDetailsMenuBottomsheet.dart
+M       lib/ui/screens/childFeeDetails/widgets/feeInformationContainer.dart
+M       lib/ui/screens/childFeeDetails/widgets/feeReliefContainer.dart
+M       lib/ui/screens/childFeeDetails/widgets/installments.dart
+A       lib/ui/screens/childFeeDetails/widgets/paymentInstructionsHtml.dart
+M       lib/ui/screens/childFeeDetails/widgets/pendingTransactionWarningDialog.dart
+A       lib/ui/screens/childFeeDetails/widgets/rejectedPaymentBottomsheet.dart
+A       lib/ui/screens/childFeeDetails/widgets/selectFeePaymentMethodBottomsheet.dart
+M       lib/ui/screens/childFeeDetails/widgets/selectPaymentMethodBottomsheet.dart
+A       lib/ui/screens/childFeeDetails/widgets/transactionBreakdown.dart
+A       lib/ui/screens/childFeeDetails/widgets/transactionDetailsBottomsheet.dart
+M       lib/ui/screens/childFeesScreen.dart
+M       lib/ui/screens/confirmPaymentScreen.dart
+M       lib/ui/screens/exam/onlineExam/examOnlineScreen.dart
+M       lib/ui/screens/galleryImagesScreen.dart
+M       lib/ui/screens/home/widgets/homeContainer.dart
+M       lib/ui/screens/home/widgets/moreMenuBottomsheetContainer.dart
+A       lib/ui/screens/leaves/applyStudentLeaveScreen.dart
+A       lib/ui/screens/leaves/studentLeaveSubmittedScreen.dart
+A       lib/ui/screens/leaves/studentLeavesScreen.dart
+M       lib/ui/screens/notificationsScreen.dart
+M       lib/ui/screens/parentOnbordingScreen.dart
+M       lib/ui/screens/parentTransportEnroll/transportHome/changeRouteScreen.dart
+A       lib/ui/screens/parentTransportEnroll/transportHome/liveBusTrackingScreen.dart
+M       lib/ui/screens/parentTransportEnroll/transportHome/planRenewalScreen.dart
+M       lib/ui/screens/parentTransportEnroll/transportHome/transportPlanHistoryScreen.dart
+M       lib/ui/screens/parentTransportEnroll/transportHome/widgets/liveTrackingCard.dart
+M       lib/ui/screens/parentTransportEnroll/transportHome/widgets/pickupTimeRow.dart
+M       lib/ui/screens/reports/widgets/reportDivider.dart
+M       lib/ui/screens/studentOnbordingScreen.dart
+M       lib/ui/screens/transactionsScreen.dart
+M       lib/ui/screens/transportationPayment/transportationPaymentScreen.dart
+M       lib/ui/styles/colors.dart
+A       lib/ui/widgets/addFilesContainer.dart
+A       lib/ui/widgets/attachmentSourceBottomsheet.dart
+M       lib/ui/widgets/bottomsheetTopTitleAndCloseButton.dart
+A       lib/ui/widgets/childFeeCard.dart
+M       lib/ui/widgets/customCloseButton.dart
+M       lib/ui/widgets/customRefreshIndicator.dart
+M       lib/ui/widgets/errorContainer.dart
+A       lib/ui/widgets/expandableContentContainer.dart
+M       lib/ui/widgets/filesContainer.dart
+A       lib/ui/widgets/labelledAmountRow.dart
+M       lib/ui/widgets/messageItemComponents.dart
+M       lib/ui/widgets/noDataContainer.dart
+A       lib/ui/widgets/rejectedPaymentBanner.dart
+M       lib/ui/widgets/shareButton.dart
+M       lib/ui/widgets/sortSelectionBottomsheet.dart
+A       lib/ui/widgets/statusChip.dart
+A       lib/ui/widgets/studentLeaveCard.dart
+A       lib/ui/widgets/studentLeaveDetailsBottomsheet.dart
+A       lib/ui/widgets/studentLeaveStatusChip.dart
+M       lib/ui/widgets/videosContainer.dart
+M       lib/utils/api.dart
+M       lib/utils/appLanguages.dart
+A       lib/utils/attachmentPicker.dart
+M       lib/utils/constants.dart
+M       lib/utils/labelKeys.dart
+M       lib/utils/notificationNavigationHandler.dart
+M       lib/utils/notificationUtility.dart
+A       lib/utils/paginationUtils.dart
+M       lib/utils/paymentGatewayService.dart
+M       lib/utils/systemModules.dart
+M       lib/utils/utils.dart
+
+SUMMARY:
+═══════════════════════════════════════════════════════════════════════════════
+164 files changed, 15050 insertions(+), 830 deletions(-)
+
+Legend:
+A = Added
+M = Modified
+R = Renamed

@@ -1,0 +1,22 @@
+# Local secrets and environment configuration
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated output
+node_modules/
+vendor/
+.next/
+dist/
+build/
+coverage/
+.gradle/
+
+# Local editor and operating system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Oversized duplicate documentation archive (the extracted docs are included)
+/eSchool-SaaS-Doc-main.zip
