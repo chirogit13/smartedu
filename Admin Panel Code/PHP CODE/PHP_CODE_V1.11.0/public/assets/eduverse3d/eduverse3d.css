@@ -1,0 +1,251 @@
+/* Smart EduVerse 3D - shared design system for the Laravel admin panel.
+ * Tokens: navy / electric blue / cyan, glass panels. Scoped under .ev3d so
+ * the existing admin template styles are not affected. */
+.ev3d {
+  --ev3d-navy: #0a1430;
+  --ev3d-deep: #050b1d;
+  --ev3d-blue: #2f6bff;
+  --ev3d-cyan: #22d3ee;
+  --ev3d-ice: #bfe9ff;
+  --ev3d-text: #e6f0ff;
+  --ev3d-muted: #9fb3d9;
+  --ev3d-amber: #f5b041;
+  --ev3d-red: #ff8a95;
+  --ev3d-green: #34d399;
+  --ev3d-glass: rgba(16, 34, 79, 0.55);
+  --ev3d-glass-border: rgba(34, 211, 238, 0.28);
+  --ev3d-radius: 16px;
+  position: relative;
+  margin-bottom: 1.5rem;
+  border-radius: var(--ev3d-radius);
+  color: var(--ev3d-text);
+  background:
+    radial-gradient(120% 90% at 15% 0%, rgba(47, 107, 255, 0.35) 0%, rgba(47, 107, 255, 0) 55%),
+    radial-gradient(90% 80% at 100% 100%, rgba(34, 211, 238, 0.18) 0%, rgba(34, 211, 238, 0) 60%),
+    linear-gradient(160deg, var(--ev3d-navy) 0%, var(--ev3d-deep) 100%);
+  border: 1px solid var(--ev3d-glass-border);
+  box-shadow: 0 18px 40px -24px rgba(5, 11, 29, 0.9);
+  overflow: hidden;
+  isolation: isolate;
+}
+.ev3d *, .ev3d *::before, .ev3d *::after { box-sizing: border-box; }
+
+.ev3d-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem 0.25rem;
+}
+.ev3d-eyebrow {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ev3d-cyan);
+}
+.ev3d-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ev3d-text);
+}
+.ev3d-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ev3d-muted);
+  max-width: 60ch;
+}
+.ev3d-btn {
+  appearance: none;
+  border: 1px solid var(--ev3d-glass-border);
+  background: var(--ev3d-glass);
+  color: var(--ev3d-text);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.8rem;
+  line-height: 1.2;
+  cursor: pointer;
+  min-height: 32px;
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out;
+}
+.ev3d-btn:hover { background: rgba(47, 107, 255, 0.35); border-color: var(--ev3d-cyan); }
+.ev3d-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.ev3d a:focus-visible, .ev3d .ev3d-btn:focus-visible {
+  outline: 2px solid var(--ev3d-cyan);
+  outline-offset: 2px;
+}
+
+.ev3d-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+@media (max-width: 991.98px) {
+  .ev3d-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+.ev3d-stage {
+  position: relative;
+  min-height: 420px;
+  height: 100%;
+  border-radius: calc(var(--ev3d-radius) - 4px);
+  background: rgba(5, 11, 29, 0.45);
+  border: 1px solid rgba(34, 211, 238, 0.14);
+  overflow: hidden;
+}
+@media (max-width: 575.98px) {
+  .ev3d-stage { min-height: 300px; }
+}
+.ev3d-canvas { position: absolute; inset: 0; }
+.ev3d-gl { display: block; width: 100% !important; height: 100% !important; }
+
+.ev3d-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--ev3d-muted);
+}
+.ev3d-overlay[hidden] { display: none; }
+.ev3d-spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(34, 211, 238, 0.2);
+  border-top-color: var(--ev3d-cyan);
+  animation: ev3d-spin 0.9s linear infinite;
+}
+@keyframes ev3d-spin { to { transform: rotate(360deg); } }
+.ev3d-fallback-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px dashed var(--ev3d-glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ev3d-cyan);
+  font-size: 1.4rem;
+}
+
+.ev3d-tooltip {
+  position: absolute;
+  z-index: 2;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  padding: 0.35rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: rgba(5, 11, 29, 0.9);
+  border: 1px solid var(--ev3d-glass-border);
+  color: var(--ev3d-text);
+}
+.ev3d-tooltip[hidden] { display: none; }
+.ev3d-hint {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.6rem;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--ev3d-muted);
+  pointer-events: none;
+}
+.ev3d[data-ev3d-state="fallback"] .ev3d-hint,
+.ev3d[data-ev3d-state="loading"] .ev3d-hint { display: none; }
+
+/* Accessible module panel (equivalent to the clickable 3D objects) */
+.ev3d-panel { min-width: 0; }
+.ev3d-panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ev3d-muted);
+}
+.ev3d-nodes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+.ev3d-node {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  height: 100%;
+  min-height: 64px;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  background: var(--ev3d-glass);
+  border: 1px solid rgba(34, 211, 238, 0.16);
+  color: var(--ev3d-text);
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out;
+}
+a.ev3d-node:hover, a.ev3d-node.is-linked, a.ev3d-node:focus-visible {
+  color: var(--ev3d-text);
+  text-decoration: none;
+  background: rgba(47, 107, 255, 0.32);
+  border-color: var(--ev3d-cyan);
+}
+.ev3d-node-label { font-size: 0.82rem; font-weight: 600; overflow-wrap: anywhere; }
+.ev3d-node-value { font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ev3d-ice); }
+.ev3d-node-hint { font-size: 0.72rem; color: var(--ev3d-muted); overflow-wrap: anywhere; }
+.ev3d-node[data-kind="warning"] { border-left: 3px solid var(--ev3d-amber); }
+.ev3d-node[data-kind="danger"] { border-left: 3px solid var(--ev3d-red); }
+.ev3d-node[data-kind="success"] { border-left: 3px solid var(--ev3d-green); }
+.ev3d-node[data-kind="info"] { border-left: 3px solid var(--ev3d-blue); }
+.ev3d-node[data-kind="primary"] { border-left: 3px solid var(--ev3d-cyan); }
+
+.ev3d-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.74rem;
+  color: var(--ev3d-muted);
+}
+.ev3d-legend li { display: inline-flex; align-items: center; gap: 0.35rem; }
+.ev3d-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.ev3d-dot[data-kind="primary"] { background: var(--ev3d-cyan); }
+.ev3d-dot[data-kind="warning"] { background: var(--ev3d-amber); }
+.ev3d-dot[data-kind="info"] { background: var(--ev3d-blue); }
+.ev3d-dot[data-kind="success"] { background: var(--ev3d-green); }
+.ev3d-dot[data-kind="danger"] { background: var(--ev3d-red); }
+
+.ev3d-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.72rem;
+  color: var(--ev3d-muted);
+}
+.ev3d-empty { font-size: 0.85rem; color: var(--ev3d-muted); margin: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ev3d-spinner { animation: none; }
+  .ev3d-btn, .ev3d-node { transition: none; }
+}
+@media (prefers-contrast: more) {
+  .ev3d-node, .ev3d-btn { border-color: var(--ev3d-cyan); }
+  .ev3d-node-hint, .ev3d-subtitle { color: var(--ev3d-text); }
+}
