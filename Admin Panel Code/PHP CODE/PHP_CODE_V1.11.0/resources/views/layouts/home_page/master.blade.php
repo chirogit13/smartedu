@@ -30,6 +30,7 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     @include('layouts.home_page.include')
     @yield('css')
+    @include('layouts.home_page.eduverse_head')
 </head>
 
 <body class="sidebar-fixed">
