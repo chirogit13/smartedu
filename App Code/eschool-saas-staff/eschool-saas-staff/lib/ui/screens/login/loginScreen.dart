@@ -1,58 +1,56 @@
-import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
-import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
-import 'package:eschool_saas_staff/cubits/authentication/signInCubit.dart';
-import 'package:eschool_saas_staff/ui/screens/login/widgets/forgotPasswordBottomsheet.dart';
+import 'package:eschool\_saas\_staff/app/routes.dart';
+import 'package:eschool\_saas\_staff/cubits/authentication/authCubit.dart';
+import 'package:eschool\_saas\_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
+import 'package:eschool\_saas\_staff/cubits/authentication/signInCubit.dart';
+import 'package:eschool\_saas\_staff/ui/screens/login/widgets/forgotPasswordBottomsheet.dart';
 
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/showHidePasswordButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
-import 'package:eschool_saas_staff/utils/unauthenticatedAccessManager.dart';
+import 'package:eschool\_saas\_staff/ui/widgets/customCircularProgressIndicator.dart';
+import 'package:eschool\_saas\_staff/ui/widgets/customRoundedButton.dart';
+import 'package:eschool\_saas\_staff/ui/widgets/customTextButton.dart';
+import 'package:eschool\_saas\_staff/ui/widgets/customTextContainer.dart';
+import 'package:eschool\_saas\_staff/ui/widgets/customTextFieldContainer.dart';
+import 'package:eschool\_saas\_staff/ui/widgets/showHidePasswordButton.dart';
+import 'package:eschool\_saas\_staff/utils/constants.dart';
+import 'package:eschool\_saas\_staff/utils/labelKeys.dart';
+import 'package:eschool\_saas\_staff/utils/utils.dart';
+import 'package:eschool\_saas\_staff/utils/unauthenticatedAccessManager.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
+import 'package:flutter\_bloc/flutter\_bloc.dart';
+import 'package:get/route\_manager.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
-  static Widget getRouteInstance() => BlocProvider(
-        create: (context) => SignInCubit(),
+  static Widget getRouteInstance() =&gt; BlocProvider(
+        create: (context) =&gt; SignInCubit(),
         child: const LoginScreen(),
       );
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() =&gt; \_LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  late bool _hidePassword = true;
+class \_LoginScreenState extends State<LoginScreen> {
+  late bool \_hidePassword = true;
   var canPop = false;
 
-  late final _schoolCodeController = TextEditingController(
-      text: showDefaultCredentials ? defaultSchoolCode : '');
+  late final \_schoolCodeController = TextEditingController(text: '');
 
-  late final TextEditingController _emailTextEditingController =
-      TextEditingController(text: showDefaultCredentials ? defaultEmail : '');
+  late final TextEditingController \_emailTextEditingController =
+      TextEditingController(text: '');
 
-  late final TextEditingController _passwordTextEditingController =
-      TextEditingController(
-          text: showDefaultCredentials ? defaultPassword : '');
+  late final TextEditingController \_passwordTextEditingController =
+      TextEditingController(text: '');
 
   @override
   void dispose() {
-    _schoolCodeController.dispose();
-    _emailTextEditingController.dispose();
-    _passwordTextEditingController.dispose();
+    \_schoolCodeController.dispose();
+    \_emailTextEditingController.dispose();
+    \_passwordTextEditingController.dispose();
     super.dispose();
   }
 
-  Widget _buildForgotPasswordButton() {
+  Widget \_buildForgotPasswordButton() {
     return Align(
       alignment: AlignmentDirectional.centerEnd,
       child: SafeArea(
@@ -66,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
               }
               Utils.showBottomSheet(
                   child: BlocProvider(
-                    create: (context) => SendPasswordResetEmailCubit(),
+                    create: (context) =&gt; SendPasswordResetEmailCubit(),
                     child: const ForgotPasswordBottomsheet(),
                   ),
                   context: context);
@@ -75,19 +73,19 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTermsConditionAndPrivacyPolicyContainer() {
+  Widget \_buildTermsConditionAndPrivacyPolicyContainer() {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: \[
           const CustomTextContainer(
             textKey: bySignInYouAgreeToOurKey,
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+            children: \[
               CustomTextButton(
                 onTapButton: () {
                   if (context.read<SignInCubit>().state is SignInInProgress) {
@@ -108,22 +106,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     return;
                   }
 
-                  Get.toNamed(Routes.privacyPolicyScreen);
-                },
-                buttonTextKey: privacyPolicyKey,
-                textStyle: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
+```
+              Get.toNamed(Routes.privacyPolicyScreen);
+            },
+            buttonTextKey: privacyPolicyKey,
+            textStyle: const TextStyle(fontWeight: FontWeight.w700),
           ),
         ],
       ),
-    );
+      const SizedBox(
+        height: 10,
+      ),
+    ],
+  ),
+);
+```
+
   }
 
-  void _onWillPop() {
+  void \_onWillPop() {
     setState(() {
       canPop = true;
     });
@@ -142,15 +143,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: canPop,
-      onPopInvokedWithResult: (didPop, _) {
+      onPopInvokedWithResult: (didPop, \_) {
         if (didPop) return;
-        _onWillPop();
+        \_onWillPop();
       },
       child: Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           resizeToAvoidBottomInset: false,
           body: Stack(
-            children: [
+            children: \[
               SingleChildScrollView(
                 padding: EdgeInsets.only(
                     left: appContentHorizontalPadding,
@@ -158,7 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     top: MediaQuery.of(context).padding.top),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: \[
                     const SizedBox(height: 75),
                     const CustomTextContainer(
                       textKey: letSignInKey,
@@ -172,34 +173,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 20),
                     CustomTextFieldContainer(
-                      textEditingController: _schoolCodeController,
+                      textEditingController: \_schoolCodeController,
                       hintTextKey: schoolCodeKey,
                     ),
                     CustomTextFieldContainer(
                       prefixWidget: Icon(
-                        Icons.email_outlined,
+                        Icons.email\_outlined,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
-                      textEditingController: _emailTextEditingController,
+                      textEditingController: \_emailTextEditingController,
                       hintTextKey: emailKey,
                     ),
                     CustomTextFieldContainer(
                       prefixWidget: Icon(
-                        Icons.lock_outline,
+                        Icons.lock\_outline,
                         color: Theme.of(context).colorScheme.secondary,
                       ),
-                      textEditingController: _passwordTextEditingController,
+                      textEditingController: \_passwordTextEditingController,
                       hintTextKey: passwordKey,
-                      hideText: _hidePassword,
+                      hideText: \_hidePassword,
                       suffixWidget: ShowHidePasswordButton(
-                          hidePassword: _hidePassword,
+                          hidePassword: \_hidePassword,
                           onTapButton: () {
                             setState(() {
-                              _hidePassword = !_hidePassword;
+                              \_hidePassword = !\_hidePassword;
                             });
                           }),
                     ),
-                    SafeArea(child: _buildForgotPasswordButton()),
+                    SafeArea(child: \_buildForgotPasswordButton()),
                     const SizedBox(height: 25),
                     BlocConsumer<SignInCubit, SignInState>(
                       listener: (context, state) {
@@ -235,51 +236,54 @@ class _LoginScreenState extends State<LoginScreen> {
                                 return;
                               }
 
-                              if (_schoolCodeController.text.trim().isEmpty) {
-                                Utils.showSnackBar(
-                                  message: pleaseEnterSchoolCodeKey,
-                                  context: context,
-                                );
-                                return;
-                              }
+```
+                          if (_schoolCodeController.text.trim().isEmpty) {
+                            Utils.showSnackBar(
+                              message: pleaseEnterSchoolCodeKey,
+                              context: context,
+                            );
+                            return;
+                          }
 
-                              if (_emailTextEditingController.text
-                                  .trim()
-                                  .isEmpty) {
-                                Utils.showSnackBar(
-                                    message: pleaseEnterEmailKey,
-                                    context: context);
-                                return;
-                              }
-                              if (_passwordTextEditingController.text
-                                  .trim()
-                                  .isEmpty) {
-                                Utils.showSnackBar(
-                                    message: pleaseEnterPasswordKey,
-                                    context: context);
-                                return;
-                              }
+                          if (_emailTextEditingController.text
+                              .trim()
+                              .isEmpty) {
+                            Utils.showSnackBar(
+                                message: pleaseEnterEmailKey,
+                                context: context);
+                            return;
+                          }
+                          if (_passwordTextEditingController.text
+                              .trim()
+                              .isEmpty) {
+                            Utils.showSnackBar(
+                                message: pleaseEnterPasswordKey,
+                                context: context);
+                            return;
+                          }
 
-                              context.read<SignInCubit>().signInUser(
-                                    email:
-                                        _emailTextEditingController.text.trim(),
-                                    password: _passwordTextEditingController
-                                        .text
-                                        .trim(),
-                                    schoolCode:
-                                        _schoolCodeController.text.trim(),
-                                  );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ],
+                          context.read&lt;SignInCubit&gt;().signInUser(
+                                email:
+                                    _emailTextEditingController.text.trim(),
+                                password: _passwordTextEditingController
+                                    .text
+                                    .trim(),
+                                schoolCode:
+                                    _schoolCodeController.text.trim(),
+                              );
+                        },
+                      ),
+                    );
+                  },
                 ),
-              ),
-              SafeArea(child: _buildTermsConditionAndPrivacyPolicyContainer()),
-            ],
-          )),
-    );
+              ],
+            ),
+          ),
+          SafeArea(child: _buildTermsConditionAndPrivacyPolicyContainer()),
+        ],
+      )),
+);
+```
+
   }
 }
