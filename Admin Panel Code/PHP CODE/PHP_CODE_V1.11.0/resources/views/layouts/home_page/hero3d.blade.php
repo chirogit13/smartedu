@@ -26,8 +26,8 @@
         opacity: 1;
     }
 
-    /* keep all hero content above the canvas */
-    .hero3d>*:not(.hero3d-canvas) {
+    /* keep the hero content above the canvas (modal is left untouched) */
+    .hero3d>.linesBg {
         position: relative;
         z-index: 1;
     }
