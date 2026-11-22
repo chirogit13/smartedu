@@ -34,15 +34,13 @@ class _LoginScreenState extends State<LoginScreen> {
   late bool _hidePassword = true;
   var canPop = false;
 
-  late final _schoolCodeController = TextEditingController(
-      text: showDefaultCredentials ? defaultSchoolCode : '');
+  late final _schoolCodeController = TextEditingController(text: '');
 
   late final TextEditingController _emailTextEditingController =
-      TextEditingController(text: showDefaultCredentials ? defaultEmail : '');
+      TextEditingController(text: '');
 
   late final TextEditingController _passwordTextEditingController =
-      TextEditingController(
-          text: showDefaultCredentials ? defaultPassword : '');
+      TextEditingController(text: '');
 
   @override
   void dispose() {

@@ -9,7 +9,6 @@ import 'package:eschool/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool/ui/widgets/customRoundedButton.dart';
 import 'package:eschool/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool/ui/widgets/passwordHideShowButton.dart';
-import 'package:eschool/utils/constants.dart';
 import 'package:eschool/utils/labelKeys.dart';
 import 'package:eschool/utils/unauthenticatedAccessManager.dart';
 import 'package:eschool/utils/utils.dart';
@@ -55,21 +54,13 @@ class _ParentLoginScreenState extends State<ParentLoginScreen>
     ),
   );
 
-  final _schoolCodeController = TextEditingController(
-    text: showDefaultCredentials ? defaultSchoolCode : null,
-  );
+  final _schoolCodeController = TextEditingController();
 
   final TextEditingController _emailTextEditingController =
-      TextEditingController(
-          text: showDefaultCredentials
-              ? defaultParentEmail
-              : null); //default email
+      TextEditingController();
 
   final TextEditingController _passwordTextEditingController =
-      TextEditingController(
-          text: showDefaultCredentials
-              ? defaultParentPassword
-              : null); //default password
+      TextEditingController();
 
   bool _hidePassword = true;
 

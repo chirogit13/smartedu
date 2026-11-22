@@ -3,13 +3,24 @@ import 'package:eschool/utils/labelKeys.dart';
 //database urls
 //Please add your admin panel url here and make sure you do not add '/' at the end of the url
 
-const String baseUrl = "https://eschool-saas.wrteam.me";
+// Override at build time with:
+//   flutter build apk --dart-define=BASE_URL=https://your-domain.example
+// When no value is supplied the previous built-in address is used, so
+// existing builds behave exactly as before.
+const String baseUrl = String.fromEnvironment(
+  'BASE_URL',
+  defaultValue: "https://eschool-saas.wrteam.me",
+);
 
 const String databaseUrl = "$baseUrl/api/";
 
 // Reverb WebSocket configuration
-const String reverbUrl =
-    "ws://stage-eschool-saas.wrteam.net:9090/app/e2mhe9gu4tb2x2vkncxa";
+// Override at build time with --dart-define=REVERB_URL=wss://host/app/<key>
+const String reverbUrl = String.fromEnvironment(
+  'REVERB_URL',
+  defaultValue:
+      "ws://stage-eschool-saas.wrteam.net:9090/app/e2mhe9gu4tb2x2vkncxa",
+);
 
 //error message display duration
 const Duration errorMessageDisplayDuration = Duration(milliseconds: 3000);
@@ -37,18 +48,6 @@ const int maxAnnouncementDescriptionLength = 100;
 
 //notification channel keys
 const String notificationChannelKey = "basic_channel";
-
-// //to enable and disable default credentials in login page
-const bool showDefaultCredentials = false;
-
-// //default credentials of student
-const String defaultStudentGRNumber = "2022-2312509";
-const String defaultStudentPassword = "22112006";
-//default credentials of parent
-const String defaultParentEmail = "AmberMWayt@gustr.com";
-const String defaultParentPassword = "8200727077";
-// Default school code
-const String defaultSchoolCode = "SCH202412";
 
 /// When [true], screenshots and screen recording are blocked on
 /// sensitive screens (Online Exam, Payment WebView).

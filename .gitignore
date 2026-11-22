@@ -3,6 +3,19 @@
 .env.*
 !.env.example
 
+# Logs (never commit runtime logs: they can hold personal data)
+*.log
+**/storage/logs/*
+!**/storage/logs/.gitignore
+
+# Signing keys and private credentials
+*.pem
+*.p12
+*.jks
+*.keystore
+key.properties
+auth.json
+
 # Dependencies and generated output
 node_modules/
 vendor/
