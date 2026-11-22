@@ -1,0 +1,71 @@
+# One-off helper for the phase-2-3d-platform branch only.
+# - Installs three + @react-three/fiber in the Next.js student web app and commits package.json/package-lock.json
+# - Copies the self-hosted Three.js ES module into the Laravel public assets (no CDN)
+# Safe to delete after it has run once.
+name: Phase 2 - install 3D dependencies (one-off)
+
+on:
+  push:
+    branches: [phase-2-3d-platform]
+    paths: ['.github/workflows/phase-2-install-3d-deps.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase2-3d-deps
+  cancel-in-progress: false
+
+jobs:
+  install:
+    if: github.ref == 'refs/heads/phase-2-3d-platform'
+    runs-on: ubuntu-latest
+    env:
+      WEB_DIR: "Student Web Code/eSchool Sass student web v-1.11.0"
+      DEST_DIR: "Admin Panel Code/PHP CODE/PHP_CODE_V1.11.0/public/assets/eduverse3d/vendor"
+      HUSKY: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: phase-2-3d-platform
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install 3D packages in the student web app
+        working-directory: ${{ env.WEB_DIR }}
+        run: |
+          npm install --no-audit --no-fund --ignore-scripts three@0.170.0 '@react-three/fiber@^9.1.0'
+          npm install --no-audit --no-fund --ignore-scripts --save-dev '@types/three@0.170.0'
+          node -e "const p=require('./package.json');console.log('three',p.dependencies.three,'fiber',p.dependencies['@react-three/fiber'],'types',p.devDependencies['@types/three'])"
+
+      - name: Self-host Three.js for the Laravel admin panel
+        run: |
+          SRC="$WEB_DIR/node_modules/three"
+          mkdir -p "$DEST_DIR"
+          cp "$SRC/build/three.module.min.js" "$DEST_DIR/three.module.min.js"
+          cp "$SRC/LICENSE" "$DEST_DIR/three.LICENSE.txt"
+          node -e "console.log(require(process.argv[1]).version)" "$PWD/$SRC/package.json" > "$DEST_DIR/three.VERSION.txt"
+          # The admin loads this single file as an ES module; it must not import sibling files.
+          if grep -Eq 'from\s*"\./|from\s*'"'"'\./|import\s*"\./' "$DEST_DIR/three.module.min.js"; then
+            echo "three.module.min.js imports sibling files; pin a self-contained version" >&2
+            exit 1
+          fi
+          ls -la "$DEST_DIR"
+          cat "$DEST_DIR/three.VERSION.txt"
+
+      - name: Commit results to phase-2-3d-platform
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f "$DEST_DIR"
+          git add "$WEB_DIR/package.json" "$WEB_DIR/package-lock.json"
+          if git diff --cached --quiet; then
+            echo "Nothing to commit"
+            exit 0
+          fi
+          git commit -m "Phase 2: add three + @react-three/fiber, self-host Three.js for admin 3D views"
+          git pull --rebase origin phase-2-3d-platform
+          git push origin HEAD:phase-2-3d-platform
