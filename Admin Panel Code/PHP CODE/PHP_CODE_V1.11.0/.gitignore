@@ -17,6 +17,11 @@ public_html/hot
 
 storage/*.key
 .env
+.env.*
+!.env.example
+/storage/logs/*
+!/storage/logs/.gitignore
+*.log
 Homestead.yaml
 Homestead.json
 /.vagrant
