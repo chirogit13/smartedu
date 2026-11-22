@@ -84,7 +84,7 @@ jobs:
           mkdir -p "$work"
           cd "$work"
           composer init --no-interaction --name=ev3d/blade-check >/dev/null
-          composer require --no-interaction --no-progress illuminate/view:^10.0 illuminate/filesystem:^10.0 >/dev/null
+          composer require --no-interaction --no-progress illuminate/view:^10.0 illuminate/filesystem:^10.0 ramsey/uuid:^4.7 >/dev/null
           cat > check.php <<'PHP'
           <?php
           require __DIR__ . '/vendor/autoload.php';
