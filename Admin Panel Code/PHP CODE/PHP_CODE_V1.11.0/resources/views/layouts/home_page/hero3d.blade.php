@@ -10,7 +10,6 @@
         overflow: hidden;
     }
 
-```
 .hero3d-canvas {
     position: absolute;
     inset: 0;
@@ -51,14 +50,12 @@
         transform: none !important;
     }
 }
-```
 
 </style>
 
 <script type="module">
     const hero = document.querySelector('section.heroSection#home');
 
-```
 function webglAvailable() {
     try {
         const c = document.createElement('canvas');
@@ -339,6 +336,5 @@ initHero3D().catch(() => {
     if (c) c.remove();
     if (hero) hero.classList.remove('hero3d');
 });
-```
 
 </script>
