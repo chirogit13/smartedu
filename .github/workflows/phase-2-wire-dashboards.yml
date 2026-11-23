@@ -1,8 +1,9 @@
 name: Phase 2 - wire EduVerse 3D into dashboards
 
 # One-off helper for branch phase-2-3d-platform. Safe to remove after Phase 2.
-# Mounts the existing Main Admin stage, verifies the views and scene loader,
-# then commits only the dashboard integration to this branch.
+# Run 2: mounts the School Admin campus, runs syntax, integration, permission
+# and tenant checks plus the campus unit tests, then commits only the
+# dashboard mount to this branch. The Main Admin mount (run 1) is already done.
 on:
   push:
     branches: [phase-2-3d-platform]
@@ -28,63 +29,133 @@ jobs:
           ref: phase-2-3d-platform
           fetch-depth: 0
 
-      - name: Mount the guarded Main Admin stage
+      - name: Mount the School Admin campus and run integration checks
         run: |
           python3 - <<'PY'
           import os
           import pathlib
+          import re
           import sys
 
           root = pathlib.Path(os.environ["APP_DIR"])
           views = root / "resources" / "views"
+          builder_path = root / "app" / "Services" / "EduVerse3D" / "SchoolCampusBuilder.php"
+          partial_path = views / "eduverse3d" / "school_admin.blade.php"
           required = [
-              views / "eduverse3d" / "main_admin.blade.php",
+              builder_path,
+              partial_path,
               views / "eduverse3d" / "stage.blade.php",
+              root / "tests" / "Unit" / "EduVerse3D" / "SchoolCampusBuilderTest.php",
               root / "public" / "assets" / "eduverse3d" / "eduverse3d.js",
               root / "public" / "assets" / "eduverse3d" / "eduverse3d.css",
               root / "public" / "assets" / "eduverse3d" / "vendor" / "three.module.min.js",
           ]
-          missing = [str(path) for path in required if not path.is_file()]
+          missing = [str(p) for p in required if not p.is_file()]
           if missing:
-              sys.exit("Required EduVerse 3D files are missing: " + ", ".join(missing))
+              sys.exit("Required files are missing: " + ", ".join(missing))
 
-          dashboard = views / "super_admin_dashboard.blade.php"
+          failures = []
+
+          # 1. Every route the campus links to must exist in routes/web.php.
+          web = (root / "routes" / "web.php").read_text()
+          defined = set(re.findall(r"->name\(\s*['\"]([^'\"]+)['\"]\s*\)", web))
+          for res, names in re.findall(r"Route::resource\(\s*'([^']+)'[^;]*?(?:->names\(\s*'([^']+)'\s*\))?;", web):
+              base = names or res.replace("/", ".")
+              for action in ("index", "create", "store", "show", "edit", "update", "destroy"):
+                  defined.add(f"{base}.{action}")
+          builder = builder_path.read_text()
+          used = set()
+          for group in re.findall(r"firstRoute\(\[([^\]]*)\]\)", builder):
+              used.update(re.findall(r"'([^']+)'", group))
+          used.update(re.findall(r"\$routes\[\] = '([^']+)'", builder))
+          if len(used) < 12:
+              failures.append(f"Expected at least 12 campus routes, found {len(used)}: {sorted(used)}")
+          for name in sorted(used):
+              if name not in defined:
+                  failures.append(f"Campus links to undefined route: {name}")
+              else:
+                  print(f"Route exists: {name}")
+
+          # 2. Permission checks: each module must be gated by the permission its controller checks.
+          expected_gates = {
+              "school-setting-manage": "main", "class-list": "classes", "student-list": "students",
+              "teacher-list": "teachers", "attendance-list": "attendance", "exam-result": "exams",
+              "assignment-list": "assignments", "lesson-list": "assignments", "fees-paid": "fees",
+              "vehicles-list": "transport", "reports-student": "reports", "announcement-list": "announcements",
+          }
+          for perm in expected_gates:
+              if f"'{perm}'" not in builder:
+                  failures.append(f"Permission {perm} is not checked by the campus builder")
+          for feature in ["Attendance Management", "Exam Management", "Assignment Management", "Lesson Management",
+                          "Fees Management", "Transportation Module", "Announcement Management"]:
+              if f"feature('{feature}')" not in builder:
+                  failures.append(f"Plan feature {feature} is not checked by the campus builder")
+
+          # 3. Tenant checks: role guard, and explicit school_id on the only extra query.
+          partial = partial_path.read_text()
+          if partial.count("SchoolCampusBuilder::isEligible($ev3dUser)") < 2:
+              failures.append("Campus partial must check eligibility before querying and before rendering")
+          if "->where('school_id', $ev3dSchoolId)" not in partial:
+              failures.append("Attendance query in the campus partial must filter by the user's school_id")
+          if partial.count("::query()") != 1:
+              failures.append("Campus partial should run exactly one extra query (today's attendance)")
+          if "hasRole('Super Admin')" not in builder or "empty($user->school_id)" not in builder:
+              failures.append("Builder must exclude Super Admins and users without a school")
+
+          if failures:
+              sys.exit("\n".join(failures))
+
+          # 4. Mount on the real School Admin dashboard, exactly once, guarded.
+          dashboard = views / "school_admin_dashboard.blade.php"
           data = dashboard.read_bytes()
-          anchor = b"        {{-- Super Admin Dashboard --}}"
+          anchor = b"        {{-- End Counter --}}\n"
           block = (
-              b"        @if (Auth::check() && Auth::user()->hasRole('Super Admin') && Auth::user()->can('schools-list'))\n"
-              b"            @include('eduverse3d.main_admin')\n"
-              b"        @endif\n\n"
+              b"\n"
+              b"        {{-- Smart EduVerse 3D campus (School Admins of this school only; buildings filtered by permission and plan) --}}\n"
+              b"        @if (Auth::check() && Auth::user()->school_id && Auth::user()->hasRole('School Admin') && !Auth::user()->hasRole('Super Admin'))\n"
+              b"            <div class=\"row\">\n"
+              b"                <div class=\"col-12 grid-margin\">\n"
+              b"                    @include('eduverse3d.school_admin')\n"
+              b"                </div>\n"
+              b"            </div>\n"
+              b"        @endif\n"
           )
           if block in data:
-              print("Guarded Main Admin stage is already mounted.")
-          elif b"@include('eduverse3d.main_admin')" in data:
-              sys.exit("An unguarded Main Admin stage include already exists; refusing to duplicate it.")
+              print("Guarded School Admin campus is already mounted.")
+          elif b"@include('eduverse3d.school_admin')" in data:
+              sys.exit("An unexpected School Admin campus include already exists; refusing to duplicate it.")
           else:
               count = data.count(anchor)
               if count != 1:
                   sys.exit(f"Dashboard anchor found {count} times; expected exactly one.")
-              dashboard.write_bytes(data.replace(anchor, block + anchor, 1))
-              print("Mounted the existing stage for Super Admins with schools-list permission.")
+              data = data.replace(anchor, anchor + block, 1)
+              dashboard.write_bytes(data)
+              print("Mounted the campus after the counter cards for School Admins.")
+          data = dashboard.read_bytes()
+          if data.count(b"@include('eduverse3d.school_admin')") != 1:
+              sys.exit("Campus include must appear exactly once.")
+          # The holiday loop reuses $holiday; the campus must be included before it.
+          if data.index(b"@include('eduverse3d.school_admin')") > data.index(b"@forelse ($holiday as $holiday)"):
+              sys.exit("Campus include must come before the holiday loop.")
+          print("Integration, permission and tenant checks passed.")
           PY
 
-      - name: Verify Blade and 3D loading
+      - name: Syntax checks and campus unit tests
         env:
           COMPOSER_ALLOW_SUPERUSER: '1'
         run: |
           set -euo pipefail
           cd "$APP_DIR"
-          test -s public/assets/eduverse3d/eduverse3d.js
-          test -s public/assets/eduverse3d/eduverse3d.css
-          test -s public/assets/eduverse3d/vendor/three.module.min.js
           node --check public/assets/eduverse3d/eduverse3d.js
+          php -l app/Services/EduVerse3D/SchoolCampusBuilder.php
+          php -l tests/Unit/EduVerse3D/SchoolCampusBuilderTest.php
           git diff --check
 
-          work="$RUNNER_TEMP/ev3d-blade-check"
+          work="$RUNNER_TEMP/ev3d-check"
           mkdir -p "$work"
           cd "$work"
-          composer init --no-interaction --name=ev3d/blade-check >/dev/null
-          composer require --no-interaction --no-progress illuminate/view:^10.0 illuminate/filesystem:^10.0 ramsey/uuid:^4.7 >/dev/null
+          composer init --no-interaction --name=ev3d/check >/dev/null
+          composer require --no-interaction --no-progress illuminate/view:^10.0 illuminate/filesystem:^10.0 ramsey/uuid:^4.7 phpunit/phpunit:^10.5 >/dev/null
           cat > check.php <<'PHP'
           <?php
           require __DIR__ . '/vendor/autoload.php';
@@ -92,22 +163,15 @@ jobs:
           use Illuminate\View\Compilers\BladeCompiler;
 
           $root = rtrim($argv[1], '/');
-          $targets = array_slice($argv, 2);
           $compiler = new BladeCompiler(new Filesystem(), sys_get_temp_dir());
-          foreach ($targets as $relative) {
-              $sourcePath = $root . '/' . $relative;
-              $source = file_get_contents($sourcePath);
+          foreach (array_slice($argv, 2) as $relative) {
+              $source = file_get_contents($root . '/' . $relative);
               if ($source === false) {
                   fwrite(STDERR, "Could not read: {$relative}\n");
                   exit(1);
               }
-              $compiled = $compiler->compileString($source);
               $temporary = tempnam(sys_get_temp_dir(), 'ev3d-blade-');
-              if ($temporary === false) {
-                  fwrite(STDERR, "Could not create a temporary Blade output file.\n");
-                  exit(1);
-              }
-              file_put_contents($temporary, $compiled);
+              file_put_contents($temporary, $compiler->compileString($source));
               exec(escapeshellarg(PHP_BINARY) . ' -l ' . escapeshellarg($temporary), $output, $status);
               unlink($temporary);
               if ($status !== 0) {
@@ -118,19 +182,29 @@ jobs:
           }
           PHP
           php check.php "$GITHUB_WORKSPACE/$APP_DIR/resources/views" \
+            school_admin_dashboard.blade.php \
+            eduverse3d/school_admin.blade.php \
+            eduverse3d/stage.blade.php \
             super_admin_dashboard.blade.php \
-            eduverse3d/main_admin.blade.php \
-            eduverse3d/stage.blade.php
+            eduverse3d/main_admin.blade.php
+
+          cat > bootstrap.php <<'PHP'
+          <?php
+          require __DIR__ . '/vendor/autoload.php';
+          require getenv('GITHUB_WORKSPACE') . '/' . getenv('APP_DIR') . '/app/Services/EduVerse3D/SchoolCampusBuilder.php';
+          PHP
+          vendor/bin/phpunit --bootstrap bootstrap.php --testdox \
+            "$GITHUB_WORKSPACE/$APP_DIR/tests/Unit/EduVerse3D/SchoolCampusBuilderTest.php"
 
       - name: Commit and push dashboard integration
         run: |
           set -euo pipefail
-          if git diff --quiet -- "$APP_DIR/resources/views/super_admin_dashboard.blade.php"; then
+          if git diff --quiet -- "$APP_DIR/resources/views/school_admin_dashboard.blade.php"; then
             echo "No dashboard integration changes to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- "$APP_DIR/resources/views/super_admin_dashboard.blade.php"
-          git commit -m "Connect guarded EduVerse 3D admin dashboard"
+          git add -- "$APP_DIR/resources/views/school_admin_dashboard.blade.php"
+          git commit -m "Mount guarded EduVerse 3D campus on School Admin dashboard"
           git push origin phase-2-3d-platform
