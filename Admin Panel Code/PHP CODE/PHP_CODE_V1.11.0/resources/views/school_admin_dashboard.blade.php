@@ -283,6 +283,15 @@
         @endif
         {{-- End Counter --}}
 
+        {{-- Smart EduVerse 3D campus (School Admins of this school only; buildings filtered by permission and plan) --}}
+        @if (Auth::check() && Auth::user()->school_id && Auth::user()->hasRole('School Admin') && !Auth::user()->hasRole('Super Admin'))
+            <div class="row">
+                <div class="col-12 grid-margin">
+                    @include('eduverse3d.school_admin')
+                </div>
+            </div>
+        @endif
+
         <div class="row">
 
             {{-- Expense Graph --}}
